@@ -44,24 +44,51 @@ class BuildCommand extends Command
 
         $this->updateReadMeMd();
         $output->writeln(['README.md updated']);
+
+        $output->writeln([
+            'Please, do now:',
+            ' - Remove skeleton-builder dependency in the composer.json.',
+            ' - Paste code-climate link into README.md.'
+        ]);
+
+        return 0;
     }
 
     protected function updateComposerJson()
     {
-        $file = json_decode(file_get_contents(getcwd() . '/composer.json'), true);
-        $file['name'] = 'jeyroik/extas-' . $this->packageName;
-        file_put_contents(getcwd() . '/composer.json', json_encode($file, JSON_PRETTY_PRINT));
+        $path = getcwd() . '/composer.json';
+        file_put_contents(
+            $path,
+            str_replace(
+                'jeyroik/extas-skeleton',
+                'jeyroik/extas-' . $this->packageName,
+                file_get_contents($path)
+            )
+        );
     }
 
     protected function updateExtasJson()
     {
-        $file = json_decode(file_get_contents(getcwd() . '/extas.json'), true);
-        $file['name'] = 'extas/' . $this->packageName;
-        file_put_contents(getcwd() . '/extas.json', json_encode($file, JSON_PRETTY_PRINT));
+        $path = getcwd() . '/extas.json';
+        file_put_contents(
+            $path,
+            str_replace(
+                '@package',
+                'extas/' . $this->packageName,
+                file_get_contents($path)
+            )
+        );
     }
 
     protected function updateReadMeMd()
     {
-        // not implemented yet
+        file_put_contents(
+            getcwd() . '/README.md',
+            str_replace(
+                '@package',
+                $this->packageName,
+                file_get_contents(__DIR__ . '/../../resources/README.md')
+            )
+        );
     }
 }
