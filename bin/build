@@ -1,0 +1,17 @@
+#!/usr/bin/php
+<?php
+require getcwd() . '/vendor/autoload.php';
+
+if (is_file(getcwd() . '/.env')) {
+    $dotenv = \Dotenv\Dotenv::create(getcwd().'/');
+    $dotenv->load();
+}
+
+use Symfony\Component\Console\Application;
+use \extas\commands as cmd;
+
+$application = new Application();
+$application->setName(PHP_EOL . ' Extas skeleton package builder');
+$application->setVersion('0.1');
+$application->add(new cmd\BuildCommand());
+$application->run();

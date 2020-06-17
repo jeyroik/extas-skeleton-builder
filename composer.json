@@ -1,0 +1,15 @@
+{
+  "name": "jeyroik/extas-skeleton-builder",
+  "description": "Extas skeleton package builder",
+  "require": {
+    "symfony/console": "5.*"
+  },
+  "autoload": {
+    "psr-4": {
+      "extas\\": "src/"
+    }
+  },
+  "bin": [
+    "bin/build"
+  ]
+}
