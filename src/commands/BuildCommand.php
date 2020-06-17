@@ -16,6 +16,20 @@ class BuildCommand extends Command
 {
     protected string $packageName = '';
 
+    /**
+     * Configure the current command.
+     */
+    protected function configure()
+    {
+        $this
+            // the name of the command (the part after "bin/console")
+            ->setName('run')
+            ->setAliases([])
+            ->setDescription('Run package building')
+            ->setHelp('Run skeleton package building.')
+        ;
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $helper = $this->getHelper('question');
