@@ -32,23 +32,28 @@ class BuildCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $output->writeln(['<info>Running skeleton package builder v0.1.0</info>', '']);
+
         $helper = $this->getHelper('question');
-        $question = new Question('Please enter the name of the package', 'new');
+        $question = new Question('Please enter the name of the package: ', 'new');
         $this->packageName = $helper->ask($input, $output, $question);
 
+        $output->writeln(['<info>Starting building package ' . $this->packageName . '...</info>', '']);
+
         $this->updateComposerJson();
-        $output->writeln(['composer.json updated']);
+        $output->writeln(['<comment>composer.json updated</comment>']);
 
         $this->updateExtasJson();
-        $output->writeln(['extas.json updated']);
+        $output->writeln(['<comment>extas.json updated</comment>']);
 
         $this->updateReadMeMd();
-        $output->writeln(['README.md updated']);
+        $output->writeln(['<comment>README.md updated</comment>']);
 
         $output->writeln([
-            'Please, do now:',
-            ' - Remove skeleton-builder dependency in the composer.json.',
-            ' - Paste code-climate link into README.md.'
+            '<info>Package building finished.</info>', '',
+            '<info>Please, do now:</info>',
+            '<info> - Remove skeleton-builder dependency in the composer.json.</info>',
+            '<info> - Paste code-climate link into README.md.</info>'
         ]);
 
         return 0;
