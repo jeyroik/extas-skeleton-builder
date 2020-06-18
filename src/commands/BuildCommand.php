@@ -44,7 +44,7 @@ class BuildCommand extends Command
         $question = new Question('Please enter the name of the package: ', 'new');
         $this->packageName = $helper->ask($input, $output, $question);
 
-        $question = new Question('Please enter the name of the package: ', 'jeyroik');
+        $question = new Question('Please enter package owner name: ', 'jeyroik');
         $this->userName = $helper->ask($input, $output, $question);
 
         $output->writeln([
@@ -152,7 +152,10 @@ class BuildCommand extends Command
         $path = getcwd() . '/tests/' . $this->packageName;
 
         mkdir($path, 755);
-        $this->updateFileContent(__DIR__ . '/../../resources/Test.php', $path);
+        $this->updateFileContent(
+            __DIR__ . '/../../resources/Test.php',
+            $path . '/' . ucfirst($this->packageName) . 'Test.php'
+        );
     }
 
     /**
