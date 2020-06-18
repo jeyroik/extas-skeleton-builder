@@ -15,6 +15,7 @@ use Symfony\Component\Console\Question\Question;
 class BuildCommand extends Command
 {
     protected string $packageName = '';
+    protected string $userName = '';
 
     /**
      * Configure the current command.
@@ -30,6 +31,11 @@ class BuildCommand extends Command
         ;
     }
 
+    /**
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return int|null
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $output->writeln(['', '<info>Running skeleton package builder v0.1.0</info>', '']);
@@ -38,61 +44,131 @@ class BuildCommand extends Command
         $question = new Question('Please enter the name of the package: ', 'new');
         $this->packageName = $helper->ask($input, $output, $question);
 
-        $output->writeln(['', '<info>Starting building package "' . $this->packageName . '"...</info>', '']);
-
-        $this->updateComposerJson();
-        $output->writeln(['<comment> - composer.json updated</comment>']);
-
-        $this->updateExtasJson();
-        $output->writeln(['<comment> - extas.json updated</comment>']);
-
-        $this->updateReadMeMd();
-        $output->writeln(['<comment> - README.md updated</comment>']);
+        $question = new Question('Please enter the name of the package: ', 'jeyroik');
+        $this->userName = $helper->ask($input, $output, $question);
 
         $output->writeln([
-            '', '<info>Package building finished.</info>', '',
-            '<info>Please, do now:</info>',
-            '<info> - Remove skeleton-builder dependency in the composer.json.</info>',
-            '<info> - Paste code-climate link into README.md.</info>', ''
+            '',
+            '<info>Starting building package "' . $this->packageName . '" by "' . $this->userName . '"...</info>',
+            ''
         ]);
+
+        foreach ($this->getFilesForUpdate() as $filename => $method) {
+            $this->$method();
+            $output->writeln(['<comment> - ' . $filename . ' updated</comment>']);
+        }
+
+        $this->printInstructions($output);
 
         return 0;
     }
 
-    protected function updateComposerJson()
+    /**
+     * @param OutputInterface $output
+     */
+    protected function printInstructions(OutputInterface $output): void
+    {
+        $output->writeln([
+            '', '<info>Package building finished.</info>', '',
+            '<info>Please, do now:</info>',
+            '<info> - See codecov instructions in the CODECOV.md.</info>',
+            '<info> - See code climate instructions in the CODECLIMATE.md.</info>',
+            '<info> - Paste code-climate link into README.md.</info>', ''
+        ]);
+    }
+
+    /**
+     * @return \Generator
+     */
+    protected function getFilesForUpdate()
+    {
+        foreach ([
+            'composer.json' => 'updateComposerJson',
+            'extas.json' => 'updateExtasJson',
+            'README.md' => 'updateReadMeMd',
+            'CODECOV.md' => 'updateCodeCovMd',
+            'CODECLIMATE.md' => 'updateCodeClimateMd',
+            'tests/' . $this->packageName . '/'. ucfirst($this->packageName) . 'Test.php' => 'createTest'
+        ] as $filename => $method) {
+            yield $filename => $method;
+        }
+    }
+
+    /**
+     * Update package name + remove builder dep
+     */
+    protected function updateComposerJson(): void
     {
         $path = getcwd() . '/composer.json';
         file_put_contents(
             $path,
             str_replace(
-                'jeyroik/extas-skeleton',
-                'jeyroik/extas-' . $this->packageName,
+                ['jeyroik/extas-skeleton"', '"jeyroik/extas-skeleton-builder": "0.*",'],
+                [$this->userName . '/extas-' . $this->packageName . '"', ""],
                 file_get_contents($path)
             )
         );
+
+
     }
 
-    protected function updateExtasJson()
+    /**
+     * Update package name
+     */
+    protected function updateExtasJson(): void
     {
-        $path = getcwd() . '/extas.json';
-        file_put_contents(
-            $path,
-            str_replace(
-                '@package',
-                'extas/' . $this->packageName,
-                file_get_contents($path)
-            )
-        );
+        $this->updateFileContent(getcwd() . '/extas.json');
     }
 
-    protected function updateReadMeMd()
+    /**
+     * Update badges
+     */
+    protected function updateReadMeMd(): void
     {
+        $this->updateFileContent(getcwd() . '/README.md', __DIR__ . '/../../resources/README.md');
+    }
+
+    /**
+     * Update instructions for code coverage
+     */
+    protected function updateCodeCovMd(): void
+    {
+        $this->updateFileContent(getcwd() . '/CODECOV.md');
+    }
+
+    /**
+     * Update instructions for code climate
+     */
+    protected function updateCodeClimateMd(): void
+    {
+        $this->updateFileContent(getcwd() . '/CODECLIMATE.md');
+    }
+
+    /**
+     * Create extas.json test draft
+     */
+    protected function createTest(): void
+    {
+        $path = getcwd() . '/tests/' . $this->packageName;
+
+        mkdir($path, 755);
+        $this->updateFileContent(__DIR__ . '/../../resources/Test.php', $path);
+    }
+
+    /**
+     * @param string $pathToGet
+     * @param string $pathToPut
+     */
+    protected function updateFileContent(string $pathToGet, string $pathToPut = ''): void
+    {
+        $pathToPut = $pathToPut ?: $pathToGet;
+
         file_put_contents(
-            getcwd() . '/README.md',
+            $pathToPut,
             str_replace(
-                '@package',
-                $this->packageName,
-                file_get_contents(__DIR__ . '/../../resources/README.md')
+                ['@package', '@user', '@Package'],
+                [$this->packageName, $this->userName, ucfirst($this->packageName)],
+                file_get_contents($pathToGet)
             )
         );
     }
