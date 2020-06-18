@@ -16,6 +16,7 @@ class BuildCommand extends Command
 {
     protected string $packageName = '';
     protected string $userName = '';
+    protected string $resourcesPath = __DIR__ . '/../../resources';
 
     /**
      * Configure the current command.
@@ -100,17 +101,10 @@ class BuildCommand extends Command
      */
     protected function updateComposerJson(): void
     {
-        $path = getcwd() . '/composer.json';
-        file_put_contents(
-            $path,
-            str_replace(
-                ['jeyroik/extas-skeleton"', '"jeyroik/extas-skeleton-builder": "0.*",'],
-                [$this->userName . '/extas-' . $this->packageName . '"', ""],
-                file_get_contents($path)
-            )
+        $this->updateFileContent(
+            $this->resourcesPath . '/composer.json',
+            getcwd() . '/composer.json'
         );
-
-
     }
 
     /**
@@ -126,7 +120,7 @@ class BuildCommand extends Command
      */
     protected function updateReadMeMd(): void
     {
-        $this->updateFileContent(getcwd() . '/README.md', __DIR__ . '/../../resources/README.md');
+        $this->updateFileContent($this->resourcesPath . '/README.md', getcwd() . '/README.md');
     }
 
     /**
@@ -154,7 +148,7 @@ class BuildCommand extends Command
 
         mkdir($path, 0755);
         $this->updateFileContent(
-            __DIR__ . '/../../resources/Test.php',
+            $this->resourcesPath . '/Test.php',
             $path . '/' . ucfirst($this->packageName) . 'Test.php'
         );
     }
