@@ -151,7 +151,7 @@ class BuildCommand extends Command
     {
         $path = getcwd() . '/tests/' . $this->packageName;
 
-        mkdir($path, 755);
+        mkdir($path, 0755);
         $this->updateFileContent(
             __DIR__ . '/../../resources/Test.php',
             $path . '/' . ucfirst($this->packageName) . 'Test.php'
