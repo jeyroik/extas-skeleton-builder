@@ -73,7 +73,8 @@ class BuildCommand extends Command
             '<info>Please, do now:</info>',
             '<info> - See codecov instructions in the CODECOV.md.</info>',
             '<info> - See code climate instructions in the CODECLIMATE.md.</info>',
-            '<info> - Paste code-climate link into README.md.</info>', ''
+            '<info> - Paste code-climate link into the README.md.</info>',
+            '<info> - Paste release dates in the VERSIONS.md</info>', ''
         ]);
     }
 
